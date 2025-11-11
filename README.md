@@ -5,13 +5,12 @@
 **Universidad Internacional de La Rioja (UNIR)**  
 
 **Integrantes del grupo:** 
-
-- Andrea Moriñigo Velaz
-- Andrea Unzu Redin
-- Cristina Ochoa Varela
-- Daniel Carrera Cabezuelo
-- David Carrera Natera
-- Eloy Gomez Ayerbe
+- **Daniel Carrera Cabezuelo** (Dancar96)
+- **David Carrera Natera** (b62canad)
+- **Eloy Gomez Ayerbe** (Eloy27)
+- **Andrea Moriñigo Velaz** (andre-mori)
+- **Cristina Ochoa Varela** (Crisov31)
+- **Andrea Unzu Redín** (andrea_xop)
 
  ---
  *Descripción general*
