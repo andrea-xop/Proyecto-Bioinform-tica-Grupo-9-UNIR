@@ -3,7 +3,7 @@ Implementación de un repositorio base en el marco del proyecto de bioinformáti
 
 ## Miembros del grupo 9
 - **Daniel Carrera Cabezuelo** ()
-- **David Carrera Natera** ()
+- **David Carrera Natera** (b62canad)
 - **Eloy Gomez Ayerbe** ()
 - **Andrea Moriñigo Velaz** ()
 - **Cristina Ochoa Varela** ()
