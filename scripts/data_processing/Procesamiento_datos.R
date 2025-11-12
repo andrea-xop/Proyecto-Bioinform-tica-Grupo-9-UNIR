@@ -1,5 +1,5 @@
 rm(list=ls())      # Se vacía el entorno de trabajo
-setwd("C:\\Users") # Se introduce el directorio en el que se va a trabajar
+setwd("data/raw_data") # Se introduce el directorio en el que se va a trabajar
 
 # Se carga la librería del tidyverse
 library(dplyr)
@@ -37,4 +37,5 @@ orden_final <- c(gene_col, F1_cols, F4_cols, F5_cols, M_cols, anno_cols)
 datos_ordenados <- datos_unicos[, orden_final]
 
 # Se guarda el resultado en un nuevo archivo .csv
+
 write.csv(datos_ordenados, "GSE_unificado_ordenado.csv", row.names = FALSE)
