@@ -1,33 +1,28 @@
 rm(list=ls())      # Se vacía el entorno de trabajo
 library(pheatmap) # Librería para el heatmap
 
-# Se abren los datos a analizar
-datos <- read.csv("data/processed_data/GSE_unificado_ordenado.csv", header = TRUE, row.names = 1, check.names = FALSE)
-datos <- datos[, !startsWith(colnames(datos), "anno_")] # Se eliminanan las columnas no necesarias
+source("scripts/data_processing/DESeq2.R") # Llama y ejecuta el archivo DESeq2
 
-# Transformación logaritmica de los counts
-# Se usa log2(datos + 1) para:
-#  - Reducir la asimetría de los datos (genes con counts muy altos vs muy bajos)
-#  - Evitar valores infinitos al aplicar log a cero (se suma 1)
-datos_log <- log2(datos + 1)
-# Filtrado de genes de varianza 0
-datos_log <- datos_log[apply(datos_log, 1, var) != 0, ]
+# Crear vector de grupos
+muestras <- c(rep("F_control", 3), rep("F_40μg/L_DBAN", 3), rep("F_200μg/L_DBAN", 3),
+              rep("M_control", 3), rep("M_40μg/L_DBAN", 3))
 
-# Escalado de los datos por cada gen (filas)
-# Se centra y normaliza cada gen restando la media y dividiendo por la desviación estándar
-# La doble transposición (t()) se usa porque scale() opera por columnas.
-datos_scaled <- t(scale(t(datos_log)))
+# Preparar DESeqDataSet desde CSV preprocesado
+dds <- preparar_dds("data/processed_data/GSE_unificado_ordenado.csv")
 
-# Verificar valores infinitos o NA
+# Para heatmap o PCA
+vsd <- obtener_vst(dds)
+datos_scaled <- assay(vsd)
+
+# Escalamos por gen, como scale() opera sobre las columnas transponemos para tener genes en columnas escalamos y transponemos.
+datos_scaled <- t(scale(t(datos_scaled)))
+
+# Reemplazamos posibles NA o Inf
 datos_scaled[is.na(datos_scaled)] <- 0
 datos_scaled[is.infinite(datos_scaled)] <- 0
 
-# Cambia los nombres a los tipos de tratamiento
-muestras <- c(rep("F control", 3), rep("F 40 μg/L DBAN", 3), rep("F 200 μg/L DBAN", 3), rep("M control", 3), rep("M 40 μg/L DBAN", 3))
-names(muestras) <- colnames(datos_scaled)
-
 # Se crea la anotación para las columnas
-annotation_col <- data.frame(Muestras = muestras)
+annotation_col <- data.frame(Grupo = muestras)
 rownames(annotation_col) <- colnames(datos_scaled)
 
 # Se define la paleta de colores de las muestras
