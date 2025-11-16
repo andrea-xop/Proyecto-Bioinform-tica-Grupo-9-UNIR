@@ -21,6 +21,34 @@
  Los peces fueron expuestos durante ocho semanas a distintas concentraciones de DBAN y se evaluaron cambios de comportamiento y expresión génica. El análisis transcriptómico mostró alteraciones en vías neuronales clave, con efectos más marcados en machos. 
  
  A partir de los datos de **RNA-seq**, se evaluarán las diferencias de expresión entre grupos experimentales mediante el paquete **DESeq2**, con el fin de indentificar genes diferencialmente expresados y generar visualizaciones que resuman los resultados biológicos. 
+ 
+ ---
+## *Objetivos*
+
+El objetivo principal de este proyecto es desarrollar un **pipeline reproducible de análisis de expresión génica diferencial** a partir del conjunto de datos público **GSE306907**, empleando R y una estructura organizada de scripts, datos y resultados.
+
+### Objetivos específicos
+
+1. **Adquirir y organizar los datos del estudio**
+   - Descargar la matriz de conteos y los metadatos utilizando scripts (por ejemplo, `scripts/data_processing/Descarga_rawData.R`).
+   - Almacenar los datos originales en `data/raw_data/` y separarlos de los datos procesados en `data/processed_data/`.
+
+2. **Realizar el preprocesamiento y limpieza de la matriz de expresión**
+   - Filtrar genes de baja expresión, revisar la integridad de las muestras y efectuar cualquier transformación necesaria para garantizar la calidad del análisis.
+   - Implementar este procesamiento en los scripts correspondientes del directorio `scripts/data_processing/`.
+
+3. **Ejecutar el análisis de expresión diferencial**
+   - Construir el diseño experimental a partir de los metadatos almacenados en `metadata/info_estudio.md`.
+   - Crear el objeto DESeqDataSet y ejecutar el pipeline de DESeq2 para identificar genes diferencialmente expresados.
+   - Exportar los resultados estructurados en tablas dentro de `results/tables/`.
+
+4. **Generar visualizaciones interpretables**
+   - Producir gráficos clave como PCA, heatmap y volcano plot mediante los scripts alojados en `scripts/analysis/` (`PCA.R`, `heatmap.R`, `Volcano_plot.R`).
+   - Guardar las figuras generadas en `results/figures/`.
+
+5. **Documentar el proyecto y garantizar su reproducibilidad**
+   - Integrar todo el flujo de análisis, resultados visuales y conclusiones en el documento `docs/report.Rmd`.
+   - Mantener una trazabilidad clara mediante un sistema de control de versiones, commits descriptivos y trabajo colaborativo mediante ramas en GitHub.
 
  ---
  ## *Instrucciones de uso*
