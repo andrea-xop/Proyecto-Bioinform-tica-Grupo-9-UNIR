@@ -30,6 +30,35 @@ Piensa en esto como un manual de ejecución.
  A rellenar
  
  ---
+## *Requisitos técnicos y del entorno*
+Para la recreación de este proyecto será necesario tener en cuenta la versión de R utilizada, así como los paquetes que necesitarán ser instalados, estando enlistado a continuación:
+
+### 1º Versión de R necesaria:
+Debe ser una versión de R igual o superior a 4.3
+
+(En este caso se ha utilizado el entorno gráfico proporcionado por RStudio, pero no es necesario).
+
+### 2º Paquetes de R necesarios:
+```r
+“tidyverse”
+“readr”
+“janitor”
+“ggplot2”
+“pheatmap”
+“BiocManager”
+”DESeq2”
+“GEOquery”
+```
+
+### 3º Elaboración del entorno:
+```r
+install.packages(c("tidyverse", "readr", "janitor", "ggplot2", "pheatmap"))
+
+if (!requireNamespace("BiocManager", quietly=TRUE)) 
+install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery"))
+```
+
+ ---
  ## *Flujo de trabajo*
 Esta sección describe el **proceso lógico del análisis**, paso a paso, desde la descarga de datos hasta la obtención de resultados finales..
 Piensa en esto como una **explicación conceptual del pipeline**.
