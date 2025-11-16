@@ -10,7 +10,7 @@ Implementación de un repositorio base en el marco del proyecto de bioinformáti
 - **Andrea Unzu Redín** (andrea_xop)
 
 
-**Instrucciones de uso**
+### Instrucciones de uso
 Este proyecto analiza las diferencias en la expresión génica de *Danio rerio* (zebrafish) adultos expuestos a dibromoacetonitrilo 
 
 **Requisitos del sistema**
@@ -22,7 +22,6 @@ Para reproducir el análisis se recomienda un entorno Linux o WSL con las siguie
    - **Salmon ≥ 1.10.0** (para el análisis de la expresión génica)
    - **Paquetes de R: "dplyr", "readr", "ggplot2", "pheatmap", "DESeq2", "tixmport"** (para la comparación y visualización de los resultados)
 
-  
 **Descarga de datos desde GEO**
    1. Accede a la página Gene Expression Omnibus (GEO): https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE306907
    2. En el apartado "Selector de ejecución SRA" identificar qué runs SRR corresponden a cada condición
@@ -44,7 +43,7 @@ Consiste en:
 
 **Cuantificación de la expresión génica**
    1. Crear índice de transcriptoma de zebrafish
-   2. Cuantificación de la expresión con Salmon
+   2. Cuantificación de la expresión: Salmon
 
 **Análisis diferencial**
    1. Preparar tabla de conteos de genes en R: "readr", "DESeq2" y "tixmport"
@@ -55,8 +54,16 @@ Consiste en:
    4. Transformación logarítmica: "DESeq2"
 
 **Interpretación y visualización**
+   Interpretación:
+   - Criterios: padj < 0.05 y |log2FC| > 1
+   - PCA: comprobación de si las muestras se separan por condición; si no, revisar la calidad
+   - Mapping rate baja: puede indicar mala extracción
+   - Genes de interés: si no aparecen significativos, revisar expresión; puede que no se expresen en ese tejido.
 
-
+   Visualización:
+   - Tabla resumen para cada gen de interés: mean counts por condición + log2FC + padj
+   - Boxplot: para observar la distribución por muestras
+   - Heatmap: muestra varios genes de interes (rows) vs muestras (cols)
 
 
 **Resultados esperados**
@@ -65,6 +72,6 @@ Consiste en:
    - Gráficos y tablas para informe o publicación 
 
 **Referencias**
-   1. GEO Accession:
-   2. Publicación asociada:
-   3. Organismo:
+   1. GEO Accession: GSE306907
+   2. Publicación asociada: *Dibromoacetonitrile exposure induces neurobehavioral toxicity in adult zebrafish via disruption of multiple neural pathways*
+   3. Organismo: *Danio rerio*
