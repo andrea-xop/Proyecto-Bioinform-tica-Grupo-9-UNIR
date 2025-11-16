@@ -1,0 +1,32 @@
+# Parámetros del análisis de expresión diferencial (DESeq2) para GSE306907
+
+organism: "Danio rerio"
+study_accession: "GSE306907"
+
+design_formula: "~ sex + dose"   # fórmula de diseño de DESeq2
+
+# Comparaciones de interés
+contrasts:
+  - name: "DBAN_40_vs_control_machos"
+    factor: "dose"
+    numerator: "40ugL"
+    denominator: "control"
+    subset:
+      sex: "male"
+
+  - name: "DBAN_40_vs_control_hembras"
+    factor: "dose"
+    numerator: "40ugL"
+    denominator: "control"
+    subset:
+      sex: "female"
+
+# Filtros de calidad
+filters:
+  min_counts: 10      # mínimo de conteos por gen
+  min_samples: 3      # nº mínimo de muestras con expresión
+
+# Umbrales para considerar un gen significativo
+thresholds:
+  padj: 0.05
+  log2fc: 1.0
