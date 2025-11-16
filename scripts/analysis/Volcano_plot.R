@@ -1,35 +1,17 @@
 rm(list=ls())      # Limpia el entorno de trabajo
 
 # Se cargan las librerías necesarias
-library(DESeq2)    # Librería para el análisis de expresión diferencial
 library(ggplot2)   # Librería para la creación de gráficos
 library(ggrepel)   # Librería para añadir etiquetas al gráfico evitando solapamientos
 
-# Se cargan los datos necesarios
-datos <- read.csv("data/processed_data/GSE_unificado_ordenado.csv",
-                  header = TRUE, row.names = 1, check.names = FALSE)
+source("scripts/data_processing/DESeq2.R") # Llama y ejecuta el archivo DESeq2
 
-# Se eliminan las columnas del datos no necesarias para este análisis
-datos <- datos[, !startsWith(colnames(datos), "anno_")]
+# Crear vector de grupos
+muestras <- c(rep("F_control", 3), rep("F_40μg/L_DBAN", 3), rep("F_200μg/L_DBAN", 3),
+              rep("M_control", 3), rep("M_40μg/L_DBAN", 3))
 
-# Se definen los grupos de tratamientos a los que pertenecen las muestras del experimento
-muestras <- c(rep("F_control", 3),
-             rep("F_40μg/L_DBAN", 3),
-             rep("F_200μg/L_DBAN", 3),
-             rep("M_control", 3),
-             rep("M_40μg/L_DBAN", 3))
-
-# Se crea un data.frame con la información de las condiciones experimentales
-colData <- data.frame(row.names = colnames(datos),
-                      Grupo = factor(muestras))
-
-# Creamos el objeto DESeq2 con los datos de conteo y la información experimental
-dds <- DESeqDataSetFromMatrix(countData = datos,
-                              colData = colData,
-                              design = ~ Grupo)
-
-# Se filtran los genes con muy baja expresión (menos de 10 counts en total)
-dds <- dds[rowSums(counts(dds)) > 10, ]
+# Preparar DESeqDataSet desde CSV preprocesado
+dds <- preparar_dds("data/processed_data/GSE_unificado_ordenado.csv")
 
 # Ejecutamos el análisis de expresión diferencial con DESeq2
 dds <- DESeq(dds)
