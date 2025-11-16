@@ -243,23 +243,24 @@ Debe ser una versión de R igual o superior a 4.3
 
 ### 2º Paquetes de R necesarios:
 ```r
-“tidyverse”
+“dplyr”
 “readr”
 “janitor”
 “ggplot2”
+“ggrepel”
 “pheatmap”
 “BiocManager”
 ”DESeq2”
 “GEOquery”
-"tixmport"
+“tixmport”
 ```
 
 ### 3º Elaboración del entorno:
 ```r
-install.packages(c("tidyverse", "readr", "janitor", "ggplot2", "pheatmap"))
+install.packages(c("dplyr", "readr", "janitor", "ggplot2", "pheatmap"))
 
 if (!requireNamespace("BiocManager", quietly=TRUE)) 
-install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery"))
+install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery", "tixmport"))
 ```
 
 ### 4º Otras herramientas utilizadas:
