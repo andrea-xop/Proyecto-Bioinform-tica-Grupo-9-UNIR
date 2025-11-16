@@ -59,8 +59,3 @@ ggsave(filename = "results/figures/PCA_plot.png",
        width = 8,       # ancho en pulgadas
        height = 6,      # alto en pulgadas
        dpi = 300)       # resolución
-       plot = p,
-       width = 8,       # ancho en pulgadas
-       height = 6,      # alto en pulgadas
-
-       dpi = 300)       # resolución
