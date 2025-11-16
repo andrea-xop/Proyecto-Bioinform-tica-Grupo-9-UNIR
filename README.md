@@ -51,7 +51,7 @@ El objetivo principal de este proyecto es desarrollar un **pipeline reproducible
    - Mantener una trazabilidad clara mediante un sistema de control de versiones, commits descriptivos y trabajo colaborativo mediante ramas en GitHub.
 
  ---
- ## *Instrucciones de uso*
+ ## *Instrucciones de ejecución del proyecto*
 Esta sección explica **cómo ejecutar el proyecto paso a paso en tu propio ordenador**.
 Incluye el orden de ejecución y las acciones prácticas que cualquier usuario debe realizar para reproducir el análisis completo.
 Piensa en esto como un manual de ejecución. 
@@ -65,7 +65,7 @@ Para reproducir el análisis se recomienda un entorno Linux o WSL con las siguie
    - **Salmon ≥ 1.10.0** (para el análisis de la expresión génica)
    - **Paquetes de R: "tidyverse", "readr", "ggplot2", "pheatmap", "BioCManager", "DESeq2", "GEOquery", "tixmport"** (para la comparación y visualización de los resultados)
 
-### Descarga de datos desde GEO
+### 1º Descarga de datos desde GEO
    1. Accede a la página Gene Expression Omnibus (GEO): https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE306907
    2. En el apartado "Selector de ejecución SRA" identificar qué runs SRR corresponden a cada condición
    3. Mediante SRA Toolkit descarga los archivos FASTQ:
@@ -88,7 +88,7 @@ Para reproducir el análisis se recomienda un entorno Linux o WSL con las siguie
        done
 ```
 
-### Preprocesamiento
+### 2º Preprocesamiento
 Consiste en:
    - Análisis de calidad de las muestras: interfaz gráfica FASTQC
 
@@ -110,7 +110,7 @@ for fq in data/raw/fastq/*_1.fastq; do
 done
 ```
 
-### Cuantificación de la expresión génica
+### 3º Cuantificación de la expresión génica
    1. Crear índice de transcriptoma de zebrafish
  ```
       salmon index -t transcripts.fa -i index_salmon --type quasi -k 31
@@ -144,7 +144,7 @@ done
      write.csv(counts, "data/processed/counts_matrix.csv")
 ```
 
-### Análisis diferencial
+### 4º Análisis diferencial
    1. Preparar tabla de conteos de genes en R: "readr", "DESeq2" y "tixmport"
       - Crear tx2gene (tabla que relaciona transcritos con genes)
       - Importar cuantificación
@@ -219,7 +219,7 @@ saveRDS(vsd, "data/processed/vst_normalized.rds")
 message("Transformación logarítmica completada. Archivos guardados.")
 ```
 
-### Interpretación y visualización 
+### 5º Interpretación y visualización 
    Interpretación:
    - Criterios: padj < 0.05 y |log2FC| > 1
    - PCA: comprobación de si las muestras se separan por condición; si no, revisar la calidad
@@ -266,43 +266,26 @@ install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery"))
 ```
 
  ---
- ## *Flujo de trabajo*
-Esta sección describe el **proceso lógico del análisis**, paso a paso, desde la descarga de datos hasta la obtención de resultados finales..
-Piensa en esto como una **explicación conceptual del pipeline**.
+## *Visión conceptual del flujo de análisis*
+Mientras que la sección anterior (*Instrucciones de ejecución del proyecto*) detalla los pasos técnicos necesarios para ejecutar cada herramienta del proyecto, esta sección ofrece una **visión conceptual del proceso completo**, explicando **qué ocurre en cada fase del análisis y con qué finalidad**, sin entrar en comandos ni parámetros específicos. Su propósito es ayudar a entender el sentido global del pipeline.
 
- ### 1º Descargar los datos
-El script `01_download_data.R` usa el paquete **GEOquery** para descargar la matriz de expresión y los metadatos del estudio GSE306907.
- ```r
-   library(GEOquery)
-   gse <- getGEO("GSE306907", GSEMatrix = TRUE)
-   expr <- exprs(gse[[1]])
-   meta <- pData(gse[[1]])
-   write.csv(expr, "data/raw/expression_matrix.csv")
-   write.csv(meta, "data/raw/metadata.csv")
-```
-### 2º Preprocesamiento
-- Limpieza de datos.
-- Filtrado de genes de baja expresión.
-- Transformaciones necesarias para trabajar con RNA-Seq.
+ ### 1º Obtención de los datos
+El análisis comienza con la recuperación del dataset correspondiente al estudio GSE306907, incluyendo tanto la información de expresión como los metadatos asociados a cada muestra. Estos metadatos permiten definir las condiciones experimentales y son esenciales para cualquier análisis comparativo.
 
-### 3º Análisis de expresión diferencial
-Con DESeq2 se modelan los datos y se identifican genes sobreexpresados o infraexpresados entre condiciones experimentales.
-```r
-dds <- DESeqDataSetFromMatrix(countData = counts,
-                              colData   = meta,
-                              design    = ~ condition)
-dds <- DESeq(dds)
-res <- results(dds)
-```
-### 4º Visualización
-Generación de gráficos clave:
-- PCA: variabilidad global entre muestras.
-- Volcano plot: genes significativos (p-adj y log2FC).
-- Heatmap: principales genes diferencialmente expresados.
+### 2º Control y preparación de la información
+Los datos brutos se someten a una revisión de calidad para asegurar que cumplen estándares mínimos. A continuación, se organizan y procesan con el fin de eliminar ruido técnico y estructurar la información en un formato adecuado para los análisis posteriores.
 
-### 5º Informe reproducible
-Todo el análisis se integra en un archivo RMarkdown para documentar métodos, resultados y visualizaciones de forma clara y formal.
-El informe `docs/report.Rmd` integrará estos resultados para su presentación final.
+### 3º Cuantificación de la expresión génica
+Una vez depurados, los datos se emplean para estimar la abundancia relativa de cada transcrito o gen en las muestras del estudio. Esta cuantificación da lugar a matrices de expresión que servirán como base para identificar diferencias entre condiciones.
+
+### 4º Análisis de expresión diferencial
+A través de modelos estadísticos se comparan las distintas condiciones experimentales. Este proceso permite detectar genes que presentan una expresión significativamente mayor o menor en respuesta al tratamiento o estímulo, revelando posibles mecanismos biológicos implicados.
+
+### 5º Visualización e interpretación de resultados
+Los resultados se representan mediante técnicas gráficas —como PCA, volcano plots o heatmaps— que facilitan la interpretación del comportamiento global de las muestras y la identificación de genes relevantes. Estas visualizaciones ayudan a detectar patrones y validar la coherencia del análisis.
+
+### 6. Informe reproducible
+Finalmente, todo el análisis se integra en un documento reproducible (por ejemplo, un archivo RMarkdown) que reúne los métodos, resultados y visualizaciones. Este informe permite revisar de forma ordenada y transparente todo el proceso analítico.
 
  ---
 ## *Referencias*
