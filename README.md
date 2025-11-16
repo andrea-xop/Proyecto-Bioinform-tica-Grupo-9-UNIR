@@ -234,7 +234,7 @@ message("Transformación logarítmica completada. Archivos guardados.")
  
  ---
 ## *Requisitos técnicos y del entorno*
-Para la recreación de este proyecto será necesario tener en cuenta que se utilizó un entorno de Linux o WSL, así como:
+Para la recreación de este proyecto será necesario tener en cuenta que se utilizó un entorno de Linux o WSL, así como las siguientes herramientas:
 
 ### 1º Versión de R necesaria:
 Debe ser una versión de R igual o superior a 4.3
