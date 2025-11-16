@@ -90,14 +90,14 @@ Para reproducir el análisis se recomienda un entorno Linux o WSL con las siguie
 
 ### Preprocesamiento
 Consiste en:
-   - **Análisis de calidad de las muestras: interfaz gráfica FASTQC**
+   - Análisis de calidad de las muestras: interfaz gráfica FASTQC
 
 ```
      mkdir -p results/fastqc
      fastqc -o results/fastqc data/raw/fastq/*.fastq
 ```
 
-   - **Limpieza de datos: fastp**
+   - Limpieza de datos: fastp
 
 ```
      mkdir -p data/processed/fastq_clean
@@ -126,7 +126,7 @@ for sample in $(ls data/processed/fastq_clean/*_1.clean.fastq | sed 's/_1.clean.
     -1 ${sample}_1.clean.fastq -2 ${sample}_2.clean.fastq \
     -p 8 --validateMappings -o results/salmon/${base}_quant
 done
-```
+
 
       4. Importar cuantificaciones y preparar matriz de conteo (R)
       
