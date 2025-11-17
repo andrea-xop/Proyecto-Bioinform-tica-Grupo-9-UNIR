@@ -1,13 +1,13 @@
 rm(list=ls())      # Se vacía el entorno de trabajo
-setwd("data/raw_data") # Se introduce el directorio en el que se va a trabajar
+setwd("ANALISIS-DE-EXPRESION-GENICA-DIFERENCIAL") # Se introduce el directorio en el que se va a trabajar
 
 # Se carga la librería del tidyverse
 library(dplyr)
 
 
 # Carga de los archivos a procesar
-archivo1 <- read.csv("GSE306907_gene_count_matrix.csv", header = TRUE, stringsAsFactors = FALSE)
-archivo2 <- read.csv("GSE306907_gene_count_2_matrix.csv", header = TRUE, stringsAsFactors = FALSE)
+archivo1 <- read.csv("data/raw_data/GSE306907_gene_count_matrix.csv", header = TRUE, stringsAsFactors = FALSE)
+archivo2 <- read.csv("data/raw_data/GSE306907_gene_count_2_matrix.csv", header = TRUE, stringsAsFactors = FALSE)
 
 # Como tienen las mismas filas se unen por columnas
 datos_unidos <- cbind(archivo1, archivo2)
@@ -39,3 +39,4 @@ datos_ordenados <- datos_unicos[, orden_final]
 # Se guarda el resultado en un nuevo archivo .csv
 
 write.csv(datos_ordenados, "GSE_unificado_ordenado.csv", row.names = FALSE)
+

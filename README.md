@@ -56,15 +56,6 @@ Esta sección explica **cómo ejecutar el proyecto paso a paso en tu propio orde
 Incluye el orden de ejecución y las acciones prácticas que cualquier usuario debe realizar para reproducir el análisis completo.
 Piensa en esto como un manual de ejecución. 
 
-**Requisitos del sistema** (TODOS LOS PAQUETES QUE USO PARA COMENTAR Y QUITAR DESPUÉS DE AQUI!!!)
-Para reproducir el análisis se recomienda un entorno Linux o WSL con las siguientes herramientas:
-   - **R ≥ 4.2.0** (para el análisis)
-   - **SRA Toolkit** (para descargar archivos FASTQ)
-   - **FASTQC** (para el análisis de control de calidad)
-   - **fastp** (para la limpieza de secuencias)
-   - **Salmon ≥ 1.10.0** (para el análisis de la expresión génica)
-   - **Paquetes de R: "tidyverse", "readr", "ggplot2", "pheatmap", "BioCManager", "DESeq2", "GEOquery", "tixmport"** (para la comparación y visualización de los resultados)
-
 ### 1º Descarga de datos desde GEO
    1. Accede a la página Gene Expression Omnibus (GEO): https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE306907
    2. En el apartado "Selector de ejecución SRA" identificar qué runs SRR corresponden a cada condición
@@ -125,96 +116,101 @@ for sample in $(ls data/processed/fastq_clean/*_1.clean.fastq | sed 's/_1.clean.
     -p 8 --validateMappings -o results/salmon/${base}_quant
 done
 ```
-   3. Importar cuantificaciones y preparar matriz de conteo (R)  
+   3. Preparar tabla de conteos de genes en R:: "readr", "DESeq2" y "tixmport"
+      - Crear tx2gene (tabla que relaciona transcritos con genes)
+      - Importar cuantificación   
 
 ```
-      #src/03_import_tximport.R (fragmento)
+#Preparar tabla de conteos de genes desde cuantificación Salmon
+#src/03_import_tximport.R (fragmento)
       library(tximport)
       library(readr)
 
-     #tabla_samples.csv debe tener columnas: sample, condition, path_to_quant
+#CARGAR TABLA DE MUESTRAS
+#tabla_samples.csv debe tener columnas: sample, condition, path_to_quant
      samples <- read_csv("data/raw/samples_table.csv")
 
+#Crear bvector con rutas a quant.sf
      files <- file.path(samples$path_to_quant, "quant.sf")
      names(files) <- samples$sample
- 
-     tx2gene <- read_csv("data/raw/tx2gene.csv") # crear a partir de GTF o descargado
-     txi <- tximport(files, type = "salmon", tx2gene = tx2gene, countsFromAbundance="lengthScaledTPM")
+
+#Comprobar que todos los archivos existen
+     missinf <- files[!file.exists(files)]
+     if(length(missing) > 0){
+  stop("ERROR: Las siguientes rutas no existen:\n",
+       paste(missing, collapse = "\n"))
+}
+
+#Cargar tx2gene (transcrito --> gen)
+     tx2gene <- read_csv("data/raw/tx2gene.csv")
+# crear a partir de GTF o descargado
+
+#mportar cuantificación con tximport
+txi <- tximport(files, type = "salmon", tx2gene = tx2gene, countsFromAbundance="lengthScaledTPM")
      counts <- txi$counts
      write.csv(counts, "data/processed/counts_matrix.csv")
+
+#Guardar matrices de salida
+#Matriz de conteos por gen
+write_csv(counts, "data/processed/counts_matrix.csv")
+
+#(Opcional) Matriz TPM — útil para exploración
+write_csv(as.data.frame(txi$abundance), "data/processed/TPM_matrix.csv")
+
+#(Opcional) Longitudes efectivas por gen
+write_csv(as.data.frame(txi$length), "data/processed/gene_lengths.csv")
+
+message("✔ Importación completada: counts_matrix.csv generado")
 ```
 
 ### 4º Análisis diferencial
-   1. Preparar tabla de conteos de genes en R: "readr", "DESeq2" y "tixmport"
-      - Crear tx2gene (tabla que relaciona transcritos con genes)
-      - Importar cuantificación
-   2. Mirar los genes más expresados: "dplyr"
+   1. Mirar los genes más expresados: "dplyr"
    3. Filtrado de genes de baja expresión: "DESeq2"
    4. Transformación logarítmica: "DESeq2"
 
 ```
-#04_differential_analysis.R
-#Pipeline para análisis diferencial de GSE306907
-library(readr)
-library(dplyr)
-library(DESeq2)
-library(tximport)
-#1. CREAR / IMPORTAR tx2gene
-#Si ya tenéis tx2gene generado, cargarlo:
-#tx2gene <- read_csv("data/raw/tx2gene.csv")
-#Si necesitáis generarlo desde GTF:
-#(Dejar como comentario ilustrativo para los usuarios)
-#library(GenomicFeatures)
-#txdb <- makeTxDbFromGFF("data/raw/annotation.gtf")
-#k <- keys(txdb, keytype = "TXNAME")
-#tx2gene <- select(txdb, keys = k,
-#columns = c("TXNAME", "GENEID"),
-#keytype = "TXNAME")
-#write_csv(tx2gene, "data/raw/tx2gene.csv")
-tx2gene <- read_csv("data/raw/tx2gene.csv")
-#2. IMPORTAR CUANTIFICACIÓN DE SALMON
-samples <- read_csv("data/raw/samples_table.csv")
-#samples_table.csv debe tener:
-#sample, condition, path_to_quant
-files <- file.path(samples$path_to_quant, "quant.sf")
-names(files) <- samples$sample
-txi <- tximport(files,
-                type = "salmon",
-                tx2gene = tx2gene,
-                countsFromAbundance = "lengthScaledTPM")
-#Guardar matriz de conteos
-counts <- as.data.frame(txi$counts)
-write_csv(counts, "data/processed/gene_counts_matrix.csv")
-#3. REVISAR LOS GENES MÁS EXPRESADOS
+#REVISAR LOS GENES MÁS EXPRESADOS
 message("Most expressed genes:")
+
 top_genes <- counts %>%
   mutate(gene = rownames(counts)) %>%
   rowwise() %>%
   mutate(mean_expression = mean(c_across(where(is.numeric)))) %>%
   arrange(desc(mean_expression)) %>%
   slice(1:20)
+
 print(top_genes %>% select(gene, mean_expression))
+
 write_csv(top_genes, "results/tables/top_expressed_genes.csv")
-#4. FILTRADO DE GENES DE BAJA EXPRESIÓN (DESeq2)
+
+#FILTRADO DE GENES DE BAJA EXPRESIÓN (DESeq2)
 meta <- read_csv("data/raw/metadata_for_DE.csv")
+
 #metadata_for_DE.csv debe tener:
+
 #sample, condition
+
 #Asegurar que el orden coincide:
 all(colnames(counts) == meta$sample)
 dds <- DESeqDataSetFromMatrix(countData = counts,
                               colData = meta,
                               design = ~ condition)
+
 #Filtrar genes con muy pocos conteos:
 #Mantener genes con 10 o más conteos totales
 keep <- rowSums(counts(dds)) >= 10
 dds <- dds[keep, ]
 message(paste("Genes tras filtrado:", nrow(dds)))
-#5. TRANSFORMACIÓN LOGARÍTMICA (normalización)
+
+#TRANSFORMACIÓN LOGARÍTMICA (normalización)
 #VST (más rápido)
 vsd <- vst(dds, blind = FALSE)
 saveRDS(vsd, "data/processed/vst_normalized.rds")
+
 #rlog (opcional, más lento)
+
 #rld <- rlog(dds, blind = FALSE)
+
 #saveRDS(rld, "data/processed/rlog_normalized.rds")
 message("Transformación logarítmica completada. Archivos guardados.")
 ```
@@ -238,7 +234,7 @@ message("Transformación logarítmica completada. Archivos guardados.")
  
  ---
 ## *Requisitos técnicos y del entorno*
-Para la recreación de este proyecto será necesario tener en cuenta la versión de R utilizada, así como los paquetes que necesitarán ser instalados, estando enlistado a continuación:
+Para la recreación de este proyecto será necesario tener en cuenta que se utilizó un entorno de Linux o WSL, así como las siguientes herramientas:
 
 ### 1º Versión de R necesaria:
 Debe ser una versión de R igual o superior a 4.3
@@ -247,23 +243,32 @@ Debe ser una versión de R igual o superior a 4.3
 
 ### 2º Paquetes de R necesarios:
 ```r
-“tidyverse”
+“dplyr”
 “readr”
 “janitor”
 “ggplot2”
+“ggrepel”
 “pheatmap”
 “BiocManager”
 ”DESeq2”
 “GEOquery”
+“tixmport”
 ```
 
 ### 3º Elaboración del entorno:
 ```r
-install.packages(c("tidyverse", "readr", "janitor", "ggplot2", "pheatmap"))
+install.packages(c("dplyr", "readr", "janitor", "ggplot2", "pheatmap"))
 
 if (!requireNamespace("BiocManager", quietly=TRUE)) 
-install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery"))
+install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery", "tixmport"))
 ```
+
+### 4º Otras herramientas utilizadas:
+
+   - **SRA Toolkit** (para descargar archivos FASTQ)
+   - **FASTQC** (para el análisis de control de calidad)
+   - **fastp** (para la limpieza de secuencias)
+   - **Salmon ≥ 1.10.0** (para el análisis de la expresión génica)
 
  ---
 ## *Visión conceptual del flujo de análisis*

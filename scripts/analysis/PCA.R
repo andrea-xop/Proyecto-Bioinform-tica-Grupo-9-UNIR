@@ -1,30 +1,23 @@
 rm(list=ls())      # Se vacía el entorno de trabajo
 
 # Se cargan las librerías necesarias
-library(DESeq2)   # Librería para la transformación VST
 library(stats)    # Librería para el PCA
 library(ggplot2)  # Librería para hacer el gráfico
 
-# Se abren los datos a analizar
-datos <- read.csv("data/processed_data/GSE_unificado_ordenado.csv", header = TRUE, row.names = 1, check.names = FALSE)
-datos <- datos[, !startsWith(colnames(datos), "anno_")] # Se eliminanan las columnas no necesarias
+source("scripts/data_processing/DESeq2.R") # Llama y ejecuta el archivo DESeq2
 
-#Agrupamos las muestras por tipo de tratamiento y género
-muestras <- c(rep("F_control", 3), rep("F_40μg/L_DBAN", 3), rep("F_200μg/L_DBAN", 3), rep("M_control", 3), rep("M_40μg/L_DBAN", 3)) 
+# Crear vector de grupos
+muestras <- c(rep("F_control", 3), rep("F_40μg/L_DBAN", 3), rep("F_200μg/L_DBAN", 3),
+              rep("M_control", 3), rep("M_40μg/L_DBAN", 3))
 
-colData <- data.frame(row.names = colnames(datos), Grupo = muestras)
-dds <- DESeqDataSetFromMatrix(countData = datos,
-                              colData = colData,
-                              design = ~ Grupo)
+# Preparar DESeqDataSet desde CSV preprocesado
+dds <- preparar_dds("data/processed_data/GSE_unificado_ordenado.csv")
 
-# Se filtran los genes con muy pocos counts
-dds <- dds[rowSums(counts(dds)) > 10, ]
-
-vsd <- vst(dds, blind = TRUE)  # blind=TRUE para PCA exploratoria
+vsd <- obtener_vst(dds)
+datos_scaled <- assay(vsd)
 
 matriz <- assay(vsd)       # Se extraee la matriz transformada
 datos_tras <- t(matriz)    # filas = muestras, columnas = genes
-
 
 # Se escalan los datos y se hace la PCA
 dat_scaled <- scale(datos_tras)

@@ -1,3 +1,20 @@
+rm(list=ls())      # Se vacía el entorno de trabajo
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("GEOquery", ask = FALSE, type = "binary")
+
+library(GEOquery)
+
+setwd("ANALISIS-DE-EXPRESION-GENICA-DIFERENCIAL") # Se introduce el directorio en el que se va a trabajar
+
+gse <- getGEO("GSE306907", GSEMatrix = TRUE)
+expr <- exprs(gse[[1]])
+meta <- pData(gse[[1]])
+write.csv(expr, "data/raw_data/expression_matrix.csv")
+write.csv(meta, "data/raw_data/metadata.csv")
+
+# Fijamos la carpeta en la que se van a descargar los datos
 # Fijamos la carpeta en la que se van a descargar los datos
 dir.create("data/raw_data", recursive = TRUE, showWarnings = FALSE)
 
@@ -24,4 +41,6 @@ for(url in urls){
   write.csv(data_mat, csv_file, row.names = TRUE)
   # Se borra el archivo .gz descargado
   file.remove(gz_file)
+
 }
+
