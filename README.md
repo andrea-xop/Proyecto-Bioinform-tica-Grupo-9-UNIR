@@ -24,7 +24,7 @@
  
  ---
 ## *Objetivos*
-
+En esta sección se presentan los objetivos del proyecto, describiendo tanto la meta principal como las acciones que se pretenden realizar para alcanzarla. Aunque algunos pasos parecen operativos, aquí se incluyen para contextualizar cómo cada objetivo contribuye al resultado final.
 El objetivo principal de este proyecto es desarrollar un **pipeline reproducible de análisis de expresión génica diferencial** a partir del conjunto de datos público **GSE306907**, empleando R y una estructura organizada de scripts, datos y resultados.
 
 ### Objetivos específicos
@@ -52,9 +52,7 @@ El objetivo principal de este proyecto es desarrollar un **pipeline reproducible
 
  ---
  ## *Instrucciones de ejecución del proyecto*
-Esta sección explica **cómo ejecutar el proyecto paso a paso en tu propio ordenador**.
-Incluye el orden de ejecución y las acciones prácticas que cualquier usuario debe realizar para reproducir el análisis completo.
-Piensa en esto como un manual de ejecución. 
+Esta sección describe de forma práctica el procedimiento completo para **reproducir el análisis en tu propio ordenador**. Presenta el orden de ejecución, los comandos y los scripts necesarios, funcionando como un manual que guía paso a paso la realización del pipeline.
 
 ### 1º Descarga de datos desde GEO
    1. Accede a la página Gene Expression Omnibus (GEO): https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE306907
@@ -227,11 +225,33 @@ message("Transformación logarítmica completada. Archivos guardados.")
    - Boxplot: para observar la distribución por muestras
    - Heatmap: muestra varios genes de interes (rows) vs muestras (cols)
 
-### Resultados esperados
+### 6º Resultados esperados
    - Identificación de genes y rutas neuronales alteradas por la exposición a dibromoacetonitrilo 
    - Evidencia de disrrupción de vías sinápticas en el grupo expuesto
    - Gráficos y tablas para informe o publicación 
  
+---
+## *Visión conceptual del flujo de análisis*
+Esta sección ofrece una **visión conceptual del proceso completo**, describiendo qué ocurre en cada fase del análisis y con qué finalidad. A diferencia de las instrucciones técnicas de la sección anterior, aquí no se detallan comandos ni parámetros, sino que se presenta el sentido global del proceso para facilitar la comprensión e interpretación del análisis.
+
+ ### 1º Obtención de los datos
+El análisis comienza con la recuperación del dataset correspondiente al estudio GSE306907, incluyendo tanto la información de expresión como los metadatos asociados a cada muestra. Estos metadatos permiten definir las condiciones experimentales y son esenciales para cualquier análisis comparativo.
+
+### 2º Control y preparación de la información
+Los datos brutos se someten a una revisión de calidad para asegurar que cumplen estándares mínimos. A continuación, se organizan y procesan con el fin de eliminar ruido técnico y estructurar la información en un formato adecuado para los análisis posteriores.
+
+### 3º Cuantificación de la expresión génica
+Una vez depurados, los datos se emplean para estimar la abundancia relativa de cada transcrito o gen en las muestras del estudio. Esta cuantificación da lugar a matrices de expresión que servirán como base para identificar diferencias entre condiciones.
+
+### 4º Análisis de expresión diferencial
+A través de modelos estadísticos se comparan las distintas condiciones experimentales. Este proceso permite detectar genes que presentan una expresión significativamente mayor o menor en respuesta al tratamiento o estímulo, revelando posibles mecanismos biológicos implicados.
+
+### 5º Visualización e interpretación de resultados
+Los resultados se representan mediante técnicas gráficas —como PCA, volcano plots o heatmaps— que facilitan la interpretación del comportamiento global de las muestras y la identificación de genes relevantes. Estas visualizaciones ayudan a detectar patrones y validar la coherencia del análisis.
+
+### 6. Informe reproducible
+Finalmente, todo el análisis se integra en un documento reproducible que reúne los métodos, resultados y visualizaciones. Este informe permite revisar de forma ordenada y transparente todo el proceso analítico.
+
  ---
 ## *Requisitos técnicos y del entorno*
 Para la recreación de este proyecto será necesario tener en cuenta que se utilizó un entorno de Linux o WSL, así como las siguientes herramientas:
@@ -269,28 +289,6 @@ install.packages("BiocManager") BiocManager::install(c("DESeq2", "GEOquery", "ti
    - **FASTQC** (para el análisis de control de calidad)
    - **fastp** (para la limpieza de secuencias)
    - **Salmon ≥ 1.10.0** (para el análisis de la expresión génica)
-
- ---
-## *Visión conceptual del flujo de análisis*
-Mientras que la sección anterior (*Instrucciones de ejecución del proyecto*) detalla los pasos técnicos necesarios para ejecutar cada herramienta del proyecto, esta sección ofrece una **visión conceptual del proceso completo**, explicando **qué ocurre en cada fase del análisis y con qué finalidad**, sin entrar en comandos ni parámetros específicos. Su propósito es ayudar a entender el sentido global del pipeline.
-
- ### 1º Obtención de los datos
-El análisis comienza con la recuperación del dataset correspondiente al estudio GSE306907, incluyendo tanto la información de expresión como los metadatos asociados a cada muestra. Estos metadatos permiten definir las condiciones experimentales y son esenciales para cualquier análisis comparativo.
-
-### 2º Control y preparación de la información
-Los datos brutos se someten a una revisión de calidad para asegurar que cumplen estándares mínimos. A continuación, se organizan y procesan con el fin de eliminar ruido técnico y estructurar la información en un formato adecuado para los análisis posteriores.
-
-### 3º Cuantificación de la expresión génica
-Una vez depurados, los datos se emplean para estimar la abundancia relativa de cada transcrito o gen en las muestras del estudio. Esta cuantificación da lugar a matrices de expresión que servirán como base para identificar diferencias entre condiciones.
-
-### 4º Análisis de expresión diferencial
-A través de modelos estadísticos se comparan las distintas condiciones experimentales. Este proceso permite detectar genes que presentan una expresión significativamente mayor o menor en respuesta al tratamiento o estímulo, revelando posibles mecanismos biológicos implicados.
-
-### 5º Visualización e interpretación de resultados
-Los resultados se representan mediante técnicas gráficas —como PCA, volcano plots o heatmaps— que facilitan la interpretación del comportamiento global de las muestras y la identificación de genes relevantes. Estas visualizaciones ayudan a detectar patrones y validar la coherencia del análisis.
-
-### 6. Informe reproducible
-Finalmente, todo el análisis se integra en un documento reproducible (por ejemplo, un archivo RMarkdown) que reúne los métodos, resultados y visualizaciones. Este informe permite revisar de forma ordenada y transparente todo el proceso analítico.
 
  ---
 ## *Referencias*
